@@ -3,7 +3,7 @@
   <p id="question" class="question">Loading question...</p>
 
   <input id="answerInput" type="text" placeholder="Type your answer here" />
-  
+
   <div class="controls">
     <button id="submitBtn" class="primary">Submit</button>
     <button id="newBtn">Next Question</button>
@@ -16,6 +16,7 @@
 <script>
 let currentAnswer = "";
 
+// Load a new question
 async function getQuestion() {
   const res = await fetch('/question', {method: 'POST'});
   const data = await res.json();
@@ -25,6 +26,7 @@ async function getQuestion() {
   document.getElementById('answerInput').value = "";
 }
 
+// Check the answer
 function checkAnswer() {
   const user = document.getElementById('answerInput').value.trim().toLowerCase();
   const feedback = document.getElementById('feedback');
@@ -38,6 +40,7 @@ function checkAnswer() {
   }
 }
 
+// Add a new question
 async function addQuestion() {
   const q = prompt("Enter a new question:");
   if (!q) return;
@@ -53,9 +56,23 @@ async function addQuestion() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('answerInput');
+  const submitBtn = document.getElementById('submitBtn');
+
+  // Click submit button
+  submitBtn.addEventListener('click', checkAnswer);
+
+  // Press Enter key in input field to submit
+  input.addEventListener('keydown', (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();  // prevent form submission or line break
+      checkAnswer();
+    }
+  });
+
   document.getElementById('newBtn').addEventListener('click', getQuestion);
-  document.getElementById('submitBtn').addEventListener('click', checkAnswer);
   document.getElementById('addBtn').addEventListener('click', addQuestion);
-  getQuestion();
+
+  getQuestion();  // load first question
 });
 </script>
