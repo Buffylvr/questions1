@@ -1,0 +1,61 @@
+<div class="card" role="main">
+  <h1>Quiz Time!</h1>
+  <p id="question" class="question">Loading question...</p>
+
+  <input id="answerInput" type="text" placeholder="Type your answer here" />
+  
+  <div class="controls">
+    <button id="submitBtn" class="primary">Submit</button>
+    <button id="newBtn">Next Question</button>
+    <button id="addBtn">Add Question</button>
+  </div>
+
+  <p id="feedback" class="feedback"></p>
+</div>
+
+<script>
+let currentAnswer = "";
+
+async function getQuestion() {
+  const res = await fetch('/question', {method: 'POST'});
+  const data = await res.json();
+  document.getElementById('question').textContent = data.question;
+  currentAnswer = data.answer.trim().toLowerCase();
+  document.getElementById('feedback').textContent = "";
+  document.getElementById('answerInput').value = "";
+}
+
+function checkAnswer() {
+  const user = document.getElementById('answerInput').value.trim().toLowerCase();
+  const feedback = document.getElementById('feedback');
+  if (!user) return;
+  if (user === currentAnswer) {
+    feedback.textContent = "✅ Correct!";
+    feedback.style.color = "green";
+  } else {
+    feedback.textContent = `❌ Incorrect! The correct answer is: ${currentAnswer}`;
+    feedback.style.color = "red";
+  }
+}
+
+async function addQuestion() {
+  const q = prompt("Enter a new question:");
+  if (!q) return;
+  const a = prompt("Enter the answer:");
+  if (!a) return;
+  const res = await fetch('/add_question', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({question: q, answer: a})
+  });
+  const data = await res.json();
+  alert(data.ok ? "Added!" : ("Failed: " + data.error));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('newBtn').addEventListener('click', getQuestion);
+  document.getElementById('submitBtn').addEventListener('click', checkAnswer);
+  document.getElementById('addBtn').addEventListener('click', addQuestion);
+  getQuestion();
+});
+</script>
